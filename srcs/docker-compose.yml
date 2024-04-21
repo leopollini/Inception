@@ -1,0 +1,70 @@
+version: "3.5"
+
+networks:
+  app-network:
+    driver: bridge
+    name: app-network
+
+volumes:
+  db:
+    driver: local
+    name: db
+    driver_opts:
+      o: bind
+      device: /home/leonardo/data/mariadb
+      type: none
+  wp:
+    driver: local
+    name: wp
+    driver_opts:
+      o: bind
+      device: /home/leonardo/data/wordpress
+      type: none
+
+services:
+  mariadb:
+    container_name: mariadb
+    build: ./requirements/mariadb
+    networks:
+      - app-network
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/mysql
+    restart: always
+
+  wordpress:
+    container_name: wordpress
+    build: ./requirements/wordpress
+    networks:
+      - app-network
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+    volumes:
+      - wp:/var/www/html
+    restart: always
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    networks:
+      - app-network
+    ports:
+      - "443:443"
+    depends_on:
+      - wordpress
+    volumes:
+      - wp:/var/www/html
+    restart: always
+  ftp:
+    container_name: ftp
+    build: ./requirements/ftp
+    networks:
+      - app-network
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    volumes:
+      - "wp:/var/www/html"
+    restart: always
