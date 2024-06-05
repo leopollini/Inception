@@ -25,6 +25,7 @@ services:
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb
+    image: mariadb:42
     networks:
       - app-network
     env_file:
@@ -36,6 +37,8 @@ services:
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress
+    depends_on:
+      - mariadb
     networks:
       - app-network
     env_file:
