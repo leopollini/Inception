@@ -1,6 +1,7 @@
 FROM debian:buster
 RUN	apt-get update && apt-get install -y vsftpd
-
+#	copy configuration files
 COPY conf/vsftpd.conf /tmp/vsftpd.conf
 COPY tools/server_ftp.sh /tmp/server_ftp.sh
+#	script start
 ENTRYPOINT ["sh", "/tmp/server_ftp.sh"]
